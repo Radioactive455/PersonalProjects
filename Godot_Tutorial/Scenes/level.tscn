@@ -1,0 +1,72 @@
+[gd_scene load_steps=7 format=3 uid="uid://bkhsra8oty3i5"]
+
+[ext_resource type="Script" path="res://Scenes/level.gd" id="1_40shu"]
+[ext_resource type="PackedScene" uid="uid://clo43quoh4nmw" path="res://Scenes/Player.tscn" id="1_680ok"]
+[ext_resource type="Texture2D" uid="uid://dmknb30075ejg" path="res://Backgrounds/darkPurple.png" id="1_ufdxi"]
+[ext_resource type="PackedScene" uid="uid://b1v7d7b6p5hvc" path="res://Scenes/ui.tscn" id="4_w58x6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ccydg"]
+size = Vector2(119, 720)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bslys"]
+size = Vector2(1380, 98)
+
+[node name="Level" type="Node2D"]
+script = ExtResource("1_40shu")
+
+[node name="BG" type="Sprite2D" parent="."]
+position = Vector2(640, 370)
+scale = Vector2(5, 3)
+texture = ExtResource("1_ufdxi")
+metadata/_edit_lock_ = true
+
+[node name="Stars" type="Node2D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("1_680ok")]
+position = Vector2(654, 383)
+
+[node name="Borders" type="Node2D" parent="."]
+metadata/_edit_lock_ = true
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Borders"]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Borders/StaticBody2D"]
+position = Vector2(1339, 361)
+shape = SubResource("RectangleShape2D_ccydg")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="Borders"]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Borders/StaticBody2D2"]
+position = Vector2(-59, 360)
+shape = SubResource("RectangleShape2D_ccydg")
+
+[node name="StaticBody2D3" type="StaticBody2D" parent="Borders"]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Borders/StaticBody2D3"]
+position = Vector2(637, -49)
+shape = SubResource("RectangleShape2D_bslys")
+
+[node name="StaticBody2D4" type="StaticBody2D" parent="Borders"]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Borders/StaticBody2D4"]
+position = Vector2(625, 770)
+shape = SubResource("RectangleShape2D_bslys")
+
+[node name="Meteor_Timer" type="Timer" parent="."]
+wait_time = 0.25
+autostart = true
+
+[node name="Meteors" type="Node2D" parent="."]
+metadata/_edit_lock_ = true
+
+[node name="Lasers" type="Node2D" parent="."]
+metadata/_edit_lock_ = true
+
+[node name="UI" parent="." instance=ExtResource("4_w58x6")]
+
+[connection signal="laser" from="Player" to="." method="_on_player_laser"]
+[connection signal="timeout" from="Meteor_Timer" to="." method="_on_meteor_timer_timeout"]

@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3 uid="uid://clo43quoh4nmw"]
+
+[ext_resource type="Script" path="res://Scenes/Player.gd" id="1_wmhk2"]
+[ext_resource type="Texture2D" uid="uid://deujw0w7231ml" path="res://PNG/playerShip1_red.png" id="1_y8lbb"]
+[ext_resource type="AudioStream" uid="uid://c2xekbut2765u" path="res://Audio/sfx_laser2.ogg" id="3_4h3un"]
+[ext_resource type="AudioStream" uid="uid://dlpgw4lwbv2a2" path="res://Audio/sfx_shieldDown.ogg" id="4_jhbcf"]
+
+[sub_resource type="Gradient" id="Gradient_6wm2y"]
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_txhnc"]
+gradient = SubResource("Gradient_6wm2y")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gviwv"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 13.0
+gravity = Vector3(0, 200, 0)
+scale_min = 8.0
+scale_max = 10.0
+color = Color(1, 0.164706, 0.141176, 1)
+color_ramp = SubResource("GradientTexture1D_txhnc")
+
+[node name="Player" type="CharacterBody2D"]
+collision_mask = 6
+script = ExtResource("1_wmhk2")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+position = Vector2(0, 34)
+process_material = SubResource("ParticleProcessMaterial_gviwv")
+lifetime = 0.4
+
+[node name="PlayerImage" type="Sprite2D" parent="."]
+position = Vector2(-2, -3)
+texture = ExtResource("1_y8lbb")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-9, -40, 5, -40, 10, -15, 33, -1, 45, -9, 43, 21, 6, 34, -9, 34, -47, 21, -51, -8, -37, 0, -14, -15)
+
+[node name="LaserStartPos" type="Marker2D" parent="."]
+position = Vector2(0, -60)
+
+[node name="LaserTimer" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="LaserSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_4h3un")
+
+[node name="DamageSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_jhbcf")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+enabled = false
+
+[connection signal="timeout" from="LaserTimer" to="." method="_on_laser_timer_timeout"]
