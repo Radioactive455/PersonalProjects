@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://crpd77x6evr0n"]
+
+[ext_resource type="Script" path="res://Scenes/player.gd" id="1_kntn7"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r3bkt"]
+albedo_color = Color(0.299553, 0.452691, 0.919675, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bvbbm"]
+material = SubResource("StandardMaterial3D_r3bkt")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hd7nr"]
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_kntn7")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_bvbbm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_hd7nr")
+
+[node name="Cam_Controller" type="Node3D" parent="."]
+top_level = true
+
+[node name="Cam_Target" type="Marker3D" parent="Cam_Controller"]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 1.5, 3.5)
+
+[node name="Camera3D" type="Camera3D" parent="Cam_Controller/Cam_Target"]
+current = true
