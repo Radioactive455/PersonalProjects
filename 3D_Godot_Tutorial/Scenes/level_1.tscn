@@ -1,19 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://qaajd8r1imqd"]
+[gd_scene load_steps=6 format=3 uid="uid://qaajd8r1imqd"]
 
 [ext_resource type="Environment" uid="uid://bvcvuov6wmmpu" path="res://Scenes/Resources/level_1_environment.tres" id="1_lryhp"]
 [ext_resource type="PackedScene" uid="uid://be6bnxf3prbbd" path="res://Scenes/block.tscn" id="1_w6win"]
 [ext_resource type="PackedScene" uid="uid://crpd77x6evr0n" path="res://Scenes/player.tscn" id="2_bax1r"]
 [ext_resource type="PackedScene" uid="uid://x153eg5acu7m" path="res://Scenes/coin.tscn" id="5_bxyua"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eqsn8"]
-albedo_color = Color(0.160784, 0.443137, 0.0470588, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_33cnw"]
-material = SubResource("StandardMaterial3D_eqsn8")
-size = Vector3(10, 0.05, 10)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_hxwkc"]
-size = Vector3(10, 0.05, 10)
+[ext_resource type="MeshLibrary" uid="uid://chg8mwvk0ubie" path="res://Scenes/Resources/world-blocks.tres" id="5_k1dj6"]
 
 [node name="Level_1" type="Node3D"]
 
@@ -24,16 +15,8 @@ shadow_enabled = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_lryhp")
 
-[node name="Floor" type="StaticBody3D" parent="."]
-metadata/_edit_group_ = true
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("BoxMesh_33cnw")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-shape = SubResource("BoxShape3D_hxwkc")
-
 [node name="Falling_Blocks" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.39418, -2.37944, -4.68214)
 
 [node name="Block" parent="Falling_Blocks" instance=ExtResource("1_w6win")]
 transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0, 3.6079, 0)
@@ -48,7 +31,14 @@ transform = Transform3D(0.866025, -0.5, 0, 0.38718, 0.670615, 0.632746, -0.31637
 transform = Transform3D(0.866025, -0.5, 0, 0.38718, 0.670615, 0.632746, -0.316373, -0.547974, 0.77436, 0.0811503, 6.74197, -0.575009)
 
 [node name="Player" parent="." instance=ExtResource("2_bax1r")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55653, 2.26292)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.92851, 2.72123, 2.26292)
 
 [node name="Coin" parent="." instance=ExtResource("5_bxyua")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.33954, 1, 2.06801)
+
+[node name="GridMap" type="GridMap" parent="."]
+mesh_library = ExtResource("5_k1dj6")
+data = {
+"cells": PackedInt32Array(-65534, 0, 3, -65534, 65533, 3, -1, 65533, 3, -1, 0, 3)
+}
+metadata/_editor_floor_ = Vector3(0, -1, 0)
