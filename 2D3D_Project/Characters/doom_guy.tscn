@@ -1,0 +1,69 @@
+[gd_scene load_steps=9 format=3 uid="uid://boc2un2ipuuby"]
+
+[ext_resource type="Script" path="res://Characters/Character_Scripts/doom_guy.gd" id="1_gdjeu"]
+[ext_resource type="Texture2D" uid="uid://cc5g6rrpqd3ua" path="res://Sprite_Sheets/doomguy_walk.png" id="1_rbasg"]
+[ext_resource type="PackedScene" uid="uid://the3omym51e2" path="res://Components/C_Sprite_Rotation.tscn" id="2_7wct4"]
+[ext_resource type="Script" path="res://Characters/Sprite3D.gd" id="3_ox2et"]
+
+[sub_resource type="Animation" id="Animation_v1qeu"]
+resource_name = "doomguy_walk"
+length = 0.8
+loop_mode = 1
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:anim_col")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_0nkef"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite3D:anim_col")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hlgrs"]
+_data = {
+"RESET": SubResource("Animation_0nkef"),
+"doomguy_walk": SubResource("Animation_v1qeu")
+}
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_etcvk"]
+
+[node name="Doom_guy" type="CharacterBody3D" groups=["Player"]]
+script = ExtResource("1_gdjeu")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+billboard = 2
+texture = ExtResource("1_rbasg")
+hframes = 4
+vframes = 5
+script = ExtResource("3_ox2et")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite3D"]
+root_node = NodePath("../..")
+libraries = {
+"": SubResource("AnimationLibrary_hlgrs")
+}
+autoplay = "doomguy_walk"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_etcvk")
+
+[node name="C_Sprite_Rotation" parent="." instance=ExtResource("2_7wct4")]

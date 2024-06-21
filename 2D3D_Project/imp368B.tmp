@@ -1,7 +1,23 @@
-[gd_scene load_steps=6 format=3 uid="uid://c8rwfgytxfoh0"]
+[gd_scene load_steps=7 format=3 uid="uid://c8rwfgytxfoh0"]
 
 [ext_resource type="Texture2D" uid="uid://b08m0xrw3juam" path="res://imp.png" id="1_r18wf"]
 [ext_resource type="Script" path="res://imp.gd" id="2_178ky"]
+[ext_resource type="Script" path="res://Components/C_Sprite_Rotation.gd" id="3_abk6m"]
+
+[sub_resource type="Animation" id="Animation_agsoj"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:anim_col")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_phl5f"]
 resource_name = "imp_walk"
@@ -19,21 +35,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3]
-}
-
-[sub_resource type="Animation" id="Animation_agsoj"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:anim_col")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_q2kl5"]
@@ -55,3 +56,6 @@ libraries = {
 "": SubResource("AnimationLibrary_q2kl5")
 }
 autoplay = "imp_walk"
+
+[node name="Node" type="Node" parent="."]
+script = ExtResource("3_abk6m")

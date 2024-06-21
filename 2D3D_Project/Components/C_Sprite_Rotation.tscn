@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://the3omym51e2"]
+
+[ext_resource type="Script" path="res://Components/Component_Scripts/C_Sprite_Rotation.gd" id="1_csxsu"]
+
+[node name="C_Sprite_Rotation" type="Node"]
+script = ExtResource("1_csxsu")
