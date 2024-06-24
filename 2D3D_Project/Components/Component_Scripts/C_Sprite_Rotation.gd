@@ -61,7 +61,8 @@ func SpriteRotation():
 			row = 1 # forward-left sprite
 		else: 
 			row = 3 # back left sprite
+	
 	if owner is Sprite3D:
-		spr3D.frame = owner.anim_col + row * 4
+		owner.frame = owner.anim_col + row * owner.hframes
 	else:
-		spr3D.frame = spr3D.anim_col + row * 4
+		spr3D.frame = spr3D.anim_col + row * spr3D.hframes

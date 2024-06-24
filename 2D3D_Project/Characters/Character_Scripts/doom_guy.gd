@@ -1,11 +1,13 @@
 extends CharacterBody3D
 
-const SPEED = 5.0
-const JUMP_VELOCITY = 4.5
-
-
+@export var SPEED := 5.0
+@export var JUMP_STRENGTH := 4.5
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+
+var _snap_vector := Vector3.DOWN
+
+@onready var _spring_arm: SpringArm3D = $SpringArm3D
 
 func get_component(component: StringName) -> Node:
 	return get_meta(component, null)
@@ -18,28 +20,33 @@ func set_camera(c):
 		var cSpriteRot := get_component("SpriteRotationComponent")
 		cSpriteRot.set_camera(c)
 
-func _physics_process(_delta):
-	# Add the gravity.
-	#if not is_on_floor():
-		#velocity.y -= gravity * delta
-		
+func _process(delta) -> void:
+	_spring_arm.position = position 
+
+func _physics_process(delta) -> void:	
+	var move_direction := Vector3.ZERO
+	move_direction.x = Input.get_action_strength("right") - Input.get_action_strength("left")
+	move_direction.z = Input.get_action_strength("back") - Input.get_action_strength("forward")
+	move_direction = move_direction.rotated(Vector3.UP, _spring_arm.rotation.y).normalized()
+	
+	velocity.x = move_direction.x * SPEED
+	velocity.z = move_direction.z * SPEED
+	# _velocity.y -= gravity * delta
+	
+	#var just_landed := is_on_floor() and _snap_vector == Vector3.ZERO
+	#var is_jumping := is_on_floor() and Input.is_action_just_pressed("jump")
+	#if is_jumping:
+		#_velocity.y = JUMP_STRENGTH
+		#_snap_vector = Vector3.ZERO
+	#elif just_landed:
+		#_snap_vector = Vector3.DOWN
+	
+	if velocity.length() > 0.2:
+		var look_dir = Vector2(velocity.z, velocity.x)
+		rotation.y = look_dir.angle()
+	
 	if has_component("SpriteRotationComponent"):
 		var cSpriteRot := get_component("SpriteRotationComponent")
 		cSpriteRot.SpriteRotation()
-
-	# Handle jump.
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
-
+	
 	move_and_slide()

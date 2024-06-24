@@ -1,19 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://bpdfcndmwjoni"]
+[gd_scene load_steps=4 format=3 uid="uid://bpdfcndmwjoni"]
 
-[ext_resource type="Script" path="res://Level_Resources/Cam_Base.gd" id="1_rkeqx"]
 [ext_resource type="PackedScene" uid="uid://c8rwfgytxfoh0" path="res://Characters/imp.tscn" id="2_cucpb"]
 [ext_resource type="PackedScene" uid="uid://boc2un2ipuuby" path="res://Characters/doom_guy.tscn" id="3_r6g05"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_i5ly7"]
 
 [node name="Node3D" type="Node3D"]
-
-[node name="Cam_Base" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-script = ExtResource("1_rkeqx")
-
-[node name="Camera3D" type="Camera3D" parent="Cam_Base"]
-transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 2.01366)
 
 [node name="Imp" parent="." instance=ExtResource("2_cucpb")]
 

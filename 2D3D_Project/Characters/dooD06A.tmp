@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://cc5g6rrpqd3ua" path="res://Sprite_Sheets/doomguy_walk.png" id="1_rbasg"]
 [ext_resource type="PackedScene" uid="uid://the3omym51e2" path="res://Components/C_Sprite_Rotation.tscn" id="2_7wct4"]
 [ext_resource type="Script" path="res://Characters/Sprite3D.gd" id="3_ox2et"]
-[ext_resource type="Script" path="res://Characters/SpringArm3D.gd" id="5_tjlrp"]
+[ext_resource type="Script" path="res://Level_Resources/Cam_Base.gd" id="5_cl2fw"]
 
 [sub_resource type="Animation" id="Animation_0nkef"]
 length = 0.001
@@ -69,8 +69,10 @@ shape = SubResource("BoxShape3D_etcvk")
 
 [node name="C_Sprite_Rotation" parent="." instance=ExtResource("2_7wct4")]
 
-[node name="SpringArm3D" type="SpringArm3D" parent="."]
-script = ExtResource("5_tjlrp")
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="Camera3D" type="Camera3D" parent="SpringArm3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 1)
+[node name="Camera_Base" type="Node3D" parent="CanvasLayer"]
+script = ExtResource("5_cl2fw")
+
+[node name="Camera3D" type="Camera3D" parent="CanvasLayer/Camera_Base"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0.5, 1)
