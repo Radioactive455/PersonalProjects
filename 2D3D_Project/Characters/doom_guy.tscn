@@ -46,7 +46,7 @@ _data = {
 }
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_etcvk"]
-size = Vector3(0.5, 0.6, 0.5)
+size = Vector3(0.3, 0.55, 0.3)
 
 [sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_de1hj"]
 
