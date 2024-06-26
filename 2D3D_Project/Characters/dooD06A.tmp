@@ -1,10 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://boc2un2ipuuby"]
+[gd_scene load_steps=10 format=3 uid="uid://boc2un2ipuuby"]
 
 [ext_resource type="Script" path="res://Characters/Character_Scripts/doom_guy.gd" id="1_gdjeu"]
 [ext_resource type="Texture2D" uid="uid://cc5g6rrpqd3ua" path="res://Sprite_Sheets/doomguy_walk.png" id="1_rbasg"]
 [ext_resource type="PackedScene" uid="uid://the3omym51e2" path="res://Components/C_Sprite_Rotation.tscn" id="2_7wct4"]
 [ext_resource type="Script" path="res://Characters/Sprite3D.gd" id="3_ox2et"]
-[ext_resource type="Script" path="res://Characters/SpringArm3D.gd" id="5_tjlrp"]
+[ext_resource type="Script" path="res://Level_Resources/Cam_Base.gd" id="5_cl2fw"]
 
 [sub_resource type="Animation" id="Animation_0nkef"]
 length = 0.001
@@ -46,29 +46,6 @@ _data = {
 }
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_etcvk"]
-size = Vector3(0.3, 0.55, 0.3)
-
-[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_de1hj"]
-
-[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_mawi2"]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ar7jg"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_m34pj"]
-advance_mode = 2
-advance_condition = &"is_Moving"
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_kwhde"]
-advance_condition = &"idle"
-
-[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_w8ghf"]
-states/Idle/node = SubResource("AnimationNodeBlendSpace2D_de1hj")
-states/Idle/position = Vector2(384, 100)
-states/Start/position = Vector2(215, 100)
-states/Walk/node = SubResource("AnimationNodeBlendSpace2D_mawi2")
-states/Walk/position = Vector2(577, 100)
-transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_ar7jg"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_m34pj"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_kwhde")]
 
 [node name="Doom_guy" type="CharacterBody3D" groups=["Player"]]
 script = ExtResource("1_gdjeu")
@@ -92,17 +69,10 @@ shape = SubResource("BoxShape3D_etcvk")
 
 [node name="C_Sprite_Rotation" parent="." instance=ExtResource("2_7wct4")]
 
-[node name="SpringArm3D" type="SpringArm3D" parent="."]
-spring_length = 1.5
-script = ExtResource("5_tjlrp")
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="Camera3D" type="Camera3D" parent="SpringArm3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 1)
+[node name="Camera_Base" type="Node3D" parent="CanvasLayer"]
+script = ExtResource("5_cl2fw")
 
-[node name="AnimationTree" type="AnimationTree" parent="."]
-tree_root = SubResource("AnimationNodeStateMachine_w8ghf")
-advance_expression_base_node = NodePath("../Sprite3D/AnimationPlayer")
-parameters/conditions/idle = false
-parameters/conditions/is_Moving = false
-parameters/Idle/blend_position = Vector2(0, 0)
-parameters/Walk/blend_position = Vector2(0, 0)
+[node name="Camera3D" type="Camera3D" parent="CanvasLayer/Camera_Base"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0.5, 1)

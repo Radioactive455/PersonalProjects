@@ -1,30 +1,35 @@
-[gd_scene load_steps=5 format=3 uid="uid://bpdfcndmwjoni"]
+[gd_scene load_steps=7 format=3 uid="uid://bpdfcndmwjoni"]
 
-[ext_resource type="Script" path="res://Level_Resources/Cam_Base.gd" id="1_rkeqx"]
 [ext_resource type="PackedScene" uid="uid://c8rwfgytxfoh0" path="res://Characters/imp.tscn" id="2_cucpb"]
+[ext_resource type="MeshLibrary" uid="uid://cd1flg5ksavnn" path="res://Level_Resources/tile-set-auto.tres" id="3_o4o4w"]
 [ext_resource type="PackedScene" uid="uid://boc2un2ipuuby" path="res://Characters/doom_guy.tscn" id="3_r6g05"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_i5ly7"]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kadv2"]
+
+[sub_resource type="Sky" id="Sky_jqjt0"]
+sky_material = SubResource("ProceduralSkyMaterial_kadv2")
+
+[sub_resource type="Environment" id="Environment_ho5d1"]
+background_mode = 2
+sky = SubResource("Sky_jqjt0")
 
 [node name="Node3D" type="Node3D"]
 
-[node name="Cam_Base" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-script = ExtResource("1_rkeqx")
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.870811, 0.491618, 0, -0.491618, 0.870811, 0, 1.01359, 2.67591)
 
-[node name="Camera3D" type="Camera3D" parent="Cam_Base"]
-transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 2.01366)
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ho5d1")
 
 [node name="Imp" parent="." instance=ExtResource("2_cucpb")]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.82, 0)
-mesh = SubResource("BoxMesh_i5ly7")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.7, 3)
-mesh = SubResource("BoxMesh_i5ly7")
-skeleton = NodePath("../MeshInstance3D")
-
 [node name="Doom_guy" parent="." instance=ExtResource("3_r6g05")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.290851, 0, 0.314069)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, 0.5)
+
+[node name="GridMap" type="GridMap" parent="."]
+mesh_library = ExtResource("3_o4o4w")
+cell_size = Vector3(1, 1, 1)
+data = {
+"cells": PackedInt32Array(-65536, 0, 1, -1, 0, 1, -1, 65535, 1, -65536, 65535, 1, -65536, 1, 7, -1, 1, 8, -65536, 2, 655363, -1, 2, 1048578)
+}
+metadata/_editor_floor_ = Vector3(0, -1, 0)
