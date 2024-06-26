@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://bbhpckoht0lvg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rm2nb"]
+albedo_color = Color(0.592143, 0.0111036, 0.599417, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_drnf6"]
+material = SubResource("StandardMaterial3D_rm2nb")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_indkj"]
+
+[node name="Block" type="RigidBody3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_drnf6")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_indkj")

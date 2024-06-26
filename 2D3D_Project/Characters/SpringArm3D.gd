@@ -13,9 +13,18 @@ func _ready() -> void:
 func _unhandled_input(event) -> void:
 	if event is InputEventMouseMotion:
 		rotation_degrees.x -= event.relative.y * mouse_sensitivity
-		rotation_degrees.x = clamp(rotation_degrees.x, -90.0, 30.0) # limit pitch
+		# limit pitch
+		rotation_degrees.x = clamp(rotation_degrees.x, -50.0, 15.0) 
 		
 		rotation_degrees.y -= event.relative.x * mouse_sensitivity
-		rotation_degrees.y = wrapf(rotation_degrees.y, 0.0, 360.0) # rotation won't accumulate
-		
-		print(rotation_degrees)
+		# rotation won't accumulate
+		rotation_degrees.y = wrapf(rotation_degrees.y, 0.0, 360.0) 
+
+	if event is InputEventKey:
+		if event.pressed and event.is_action("escape"):
+			# Sending this notification will inform all nodes about the program
+			#	termination, but will not terminate the program itself unlike
+			#	in 3.X. In order to achieve the previous behavior, 
+			#	SceneTree.quit should be called after the notification.
+			# get_tree().root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
+			get_tree().quit()
