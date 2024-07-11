@@ -6,7 +6,7 @@ extends Node3D
 # allows start to be accessed in editor
 # every time 'start' is accessed, it calls the set_start func
 @export var start : bool = false : set = set_start
-func set_start(val:bool)->void:
+func set_start(_val:bool)->void:
 	if Engine.is_editor_hint(): # only run if in editor
 		generate()
 
@@ -22,6 +22,24 @@ func set_border_size(val : int) -> void:
 @export var room_recursion : int = 15
 @export var min_room_size : int = 2
 @export var max_room_size : int = 5
+
+const TILE_BORDER : int = 8
+const TILE_CORNER : int = 1
+const TILE_ROOM : int = 0
+const TILE_DOOR : int = 6
+const TILE_HALL: int = 13
+
+# orientations: 
+# Open Right: 0 	DEFAULT
+# Open Left: 10 	180 about y
+# Open Up:	 16 	90 about y
+# Open Down: 22 	270 about y
+
+const ORIENTATION_RIGHT : int = 0
+const ORIENTATION_LEFT	: int = 10
+const ORIENTATION_UP	: int = 16
+const ORIENTATION_DOWN 	: int = 22
+
 @export_multiline var custom_seed : String = "" : set = set_seed
 func set_seed(val : String) -> void:
 	custom_seed = val
@@ -33,10 +51,10 @@ var room_positions : PackedVector3Array = []
 func visualize_border():
 	grid_map.clear()
 	for i in range(-1, border_size + 1):
-		grid_map.set_cell_item(Vector3i(i, 0, -1), 1)
-		grid_map.set_cell_item(Vector3i(i, 0, border_size), 1)
-		grid_map.set_cell_item(Vector3i(border_size, 0, i), 1)
-		grid_map.set_cell_item(Vector3i(-1, 0, i), 1)
+		grid_map.set_cell_item(Vector3i(i, 0, -1), TILE_BORDER)
+		grid_map.set_cell_item(Vector3i(i, 0, border_size), TILE_BORDER)
+		grid_map.set_cell_item(Vector3i(border_size, 0, i), TILE_BORDER)
+		grid_map.set_cell_item(Vector3i(-1, 0, i), TILE_BORDER)
 
 
 func generate():
@@ -128,17 +146,19 @@ func create_hallways(hallway_graph : AStar2D):
 				
 				var hallway : PackedVector3Array = [tile_from, tile_to]
 				hallways.append(hallway)
-				grid_map.set_cell_item(tile_from, 7)
-				grid_map.set_cell_item(tile_to, 7)
+				
+				# create temp doorways (will be edited later once hallways are calculated
+				grid_map.set_cell_item(tile_from, TILE_DOOR)
+				grid_map.set_cell_item(tile_to, TILE_DOOR)
 				
 	
 	var aStar : AStarGrid2D = AStarGrid2D.new()
 	aStar.size = Vector2i.ONE * border_size
-	aStar.update()
 	aStar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	aStar.default_estimate_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
+	aStar.update()
 	
-	for t in grid_map.get_used_cells_by_item(9):
+	for t in grid_map.get_used_cells_by_item(TILE_ROOM):
 		aStar.set_point_solid(Vector2i(t.x, t.z))
 	
 	for h in hallways:
@@ -146,10 +166,70 @@ func create_hallways(hallway_graph : AStar2D):
 		var pos_to : Vector2i = Vector2i(h[1].x, h[1].z)
 		var hall : PackedVector2Array = aStar.get_point_path(pos_from, pos_to)
 		
-		for t in hall:
-			var pos : Vector3i = Vector3i(t.x, 0, t.y)
-			if grid_map.get_cell_item(pos) < 0:
-				grid_map.set_cell_item(pos, 0)
+		for t in hall.size():
+			var tile_type : int = TILE_HALL
+			var curr = hall[t]
+			var pos : Vector3i = Vector3i(curr.x, 0, curr.y)
+			
+			if grid_map.get_cell_item(pos) < 0: # is it unused?
+				var next = null
+				var prev = null
+				if t < hall.size() - 1:
+					next = hall[t + 1]
+				if t > 0:
+					prev = hall[t - 1]
+				
+				if next != null and prev != null:
+					if next.x != prev.x and next.y != prev.y: # CORNER NEEDED
+						tile_type = TILE_CORNER
+						if curr.y > prev.y || curr.y > next.y:
+							if curr.x > next.x || curr.x > prev.x:
+								grid_map.set_cell_item(pos, tile_type, ORIENTATION_LEFT)
+							else:
+								grid_map.set_cell_item(pos, tile_type, ORIENTATION_UP)
+						else:
+							if curr.x < prev.x || curr.x < next.x:
+								grid_map.set_cell_item(pos, tile_type, ORIENTATION_RIGHT)
+							else:
+								grid_map.set_cell_item(pos, tile_type, ORIENTATION_DOWN)
+						
+						continue
+					else:
+						# tile is a straight path
+						if prev.x != curr.x:
+							grid_map.set_cell_item(pos, tile_type, ORIENTATION_UP)
+						elif prev.y != curr.y :
+							grid_map.set_cell_item(pos, tile_type, ORIENTATION_LEFT)
+				
+				# using only one valid position, determine the orientation
+				elif next != null:
+					if next.x != curr.x:
+							grid_map.set_cell_item(pos, tile_type, ORIENTATION_UP)
+					elif next.y != curr.y :
+							grid_map.set_cell_item(pos, tile_type, ORIENTATION_LEFT)
+				elif prev != null:
+					if prev.x != curr.x:
+							grid_map.set_cell_item(pos, tile_type, ORIENTATION_UP)
+					elif prev.y != curr.y :
+							grid_map.set_cell_item(pos, tile_type, ORIENTATION_LEFT)
+		
+		# correct the door's rotation so it meets the hall
+		for t in grid_map.get_used_cells_by_item(TILE_DOOR):
+			if grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_HALL or\
+			grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_CORNER:
+				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_UP)
+				
+			elif grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_HALL or\
+			grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_CORNER:
+				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_DOWN)
+				
+			elif grid_map.get_cell_item(t + Vector3i.BACK) == TILE_HALL or\
+			grid_map.get_cell_item(t + Vector3i.BACK) == TILE_CORNER:
+				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_RIGHT)
+				
+			elif grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_HALL or\
+			grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_CORNER:
+				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_LEFT)
 
 
 func make_room(rec : int):
@@ -163,19 +243,20 @@ func make_room(rec : int):
 	start_pos.x = randi() % (border_size - width + 1)
 	start_pos.z = randi() % (border_size - height + 1)
 	
+	#check if it is possible to make a room here
 	for r in range(-room_margin, height + room_margin):
 		for c in range(-room_margin, width + room_margin):
-			var pos :  Vector3i = start_pos + Vector3i(c, 0, r)
-			if grid_map.get_cell_item(pos) == 9:
+			var tPos :  Vector3i = start_pos + Vector3i(c, 0, r)
+			if grid_map.get_cell_item(tPos) == TILE_ROOM or grid_map.get_cell_item(tPos) == TILE_BORDER :
 				make_room(rec - 1)
 				return
 	
 	var room : PackedVector3Array = []
 	for r in height:
 		for c in width:
-			var pos :  Vector3i = start_pos + Vector3i(c, 0, r)
-			grid_map.set_cell_item(pos, 9)
-			room.append(pos)
+			var tPos2 :  Vector3i = start_pos + Vector3i(c, 0, r)
+			grid_map.set_cell_item(tPos2, TILE_ROOM)
+			room.append(tPos2)
 	room_tiles.append(room)
 	
 	#calculate center pos
