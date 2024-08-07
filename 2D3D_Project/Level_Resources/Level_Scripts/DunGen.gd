@@ -28,6 +28,8 @@ const TILE_CORNER : int = 1
 const TILE_ROOM : int = 0
 const TILE_DOOR : int = 6
 const TILE_HALL: int = 13
+const TILE_T_INTER: int = 12
+const TILE_CROSS_INTER: int = 5
 
 # orientations: 
 # Open Right: 0 	DEFAULT
@@ -215,17 +217,18 @@ func create_hallways(hallway_graph : AStar2D):
 		
 		# correct the door's rotation so it meets the hall
 		for t in grid_map.get_used_cells_by_item(TILE_DOOR):
+			var tile_type : int = TILE_DOOR
 			if grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_HALL or\
 			grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_CORNER:
-				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_UP)
+				grid_map.set_cell_item(t, tile_type, ORIENTATION_UP)
 				
 			elif grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_HALL or\
 			grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_CORNER:
-				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_DOWN)
+				grid_map.set_cell_item(t, tile_type, ORIENTATION_DOWN)
 				
 			elif grid_map.get_cell_item(t + Vector3i.BACK) == TILE_HALL or\
 			grid_map.get_cell_item(t + Vector3i.BACK) == TILE_CORNER:
-				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_RIGHT)
+				grid_map.set_cell_item(t, tile_type, ORIENTATION_RIGHT)
 				
 			elif grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_HALL or\
 			grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_CORNER:
