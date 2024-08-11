@@ -2,9 +2,11 @@ class_name SpriteRotationComponent extends Node
 
 # In case we want to disable it
 @export var is_enabled: bool = true
+@export var RotationTimer: float = 0.1
 
 var camera = null
 var spr3DPath: NodePath = ".." # default path 
+var rotationTimerUpdate: float = 0
 
 func _enter_tree() -> void:
 	# This component can only work with Sprite3Ds
@@ -29,9 +31,15 @@ func _exit_tree() ->void:
 func set_camera(c):
 	camera = c
 
-func SpriteRotation():
+func SpriteRotation(delta):
 	if camera == null or !is_enabled:
 		return
+		
+	if rotationTimerUpdate >= 0:
+		rotationTimerUpdate -= delta
+		return
+	else:
+		rotationTimerUpdate = RotationTimer
 	
 	var spr3D = get_node_or_null(spr3DPath)
 	

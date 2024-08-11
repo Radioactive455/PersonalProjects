@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://Characters/Character_Scripts/doom_guy.gd" id="1_gdjeu"]
 [ext_resource type="Texture2D" uid="uid://cc5g6rrpqd3ua" path="res://Sprite_Sheets/doomguy_walk.png" id="1_rbasg"]
 [ext_resource type="PackedScene" uid="uid://the3omym51e2" path="res://Components/C_Sprite_Rotation.tscn" id="2_7wct4"]
-[ext_resource type="Script" path="res://Characters/Sprite3D.gd" id="3_ox2et"]
-[ext_resource type="Script" path="res://Characters/SpringArm3D.gd" id="5_tjlrp"]
+[ext_resource type="Script" path="res://Characters/Character_Scripts/Sprite3D.gd" id="3_ox2et"]
+[ext_resource type="Script" path="res://Characters/Character_Scripts/SpringArm3D.gd" id="5_tjlrp"]
 
 [sub_resource type="Animation" id="Animation_0nkef"]
 length = 0.001

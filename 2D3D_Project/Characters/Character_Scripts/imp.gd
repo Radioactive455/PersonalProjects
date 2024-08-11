@@ -13,7 +13,7 @@ func set_camera(c):
 		var cSpriteRot := get_component("SpriteRotationComponent")
 		cSpriteRot.set_camera(c)
 
-func _process(_delta):
+func _process(delta):
 	if has_component("SpriteRotationComponent"):
 		var cSpriteRot := get_component("SpriteRotationComponent")
-		cSpriteRot.SpriteRotation()
+		cSpriteRot.SpriteRotation(delta)

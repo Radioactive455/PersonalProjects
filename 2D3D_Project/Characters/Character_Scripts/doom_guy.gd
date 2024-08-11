@@ -8,7 +8,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _snap_vector := Vector3.DOWN
 
 @onready var _spring_arm: SpringArm3D = $SpringArm3D
-@onready var _animation_tree: AnimationTree = $AnimationTree
+# @onready var _animation_tree: AnimationTree = $AnimationTree
 
 func get_component(component: StringName) -> Node:
 	return get_meta(component, null)
@@ -32,10 +32,14 @@ func _physics_process(delta) -> void:
 	
 	velocity.x = move_direction.x * SPEED
 	velocity.z = move_direction.z * SPEED
-	velocity.y -= gravity * delta
+	
+	# update 'gravity' if in the air
+	if !is_on_floor():
+		velocity.y -= gravity * delta
 	
 	var just_landed := is_on_floor() and _snap_vector == Vector3.ZERO
 	var is_jumping := is_on_floor() and Input.is_action_just_pressed("jump")
+	
 	if is_jumping:
 		velocity.y = JUMP_STRENGTH
 		_snap_vector = Vector3.ZERO
@@ -50,10 +54,12 @@ func _physics_process(delta) -> void:
 	
 	if has_component("SpriteRotationComponent"):
 		var cSpriteRot := get_component("SpriteRotationComponent")
-		cSpriteRot.SpriteRotation()
+		cSpriteRot.SpriteRotation(delta)
 	
 	move_and_slide()
 
 func update_animation_parameters():
-	_animation_tree.set("parameters/conditions/idle", velocity == Vector3.ZERO)
-	_animation_tree.set("parameters/conditions/is_Moving", velocity != Vector3.ZERO)
+	if velocity == Vector3.ZERO:
+		$Sprite3D.anim_col = 0
+	#_animation_tree.set("parameters/conditions/idle", velocity == Vector3.ZERO)
+	#_animation_tree.set("parameters/conditions/is_Moving", velocity != Vector3.ZERO)
