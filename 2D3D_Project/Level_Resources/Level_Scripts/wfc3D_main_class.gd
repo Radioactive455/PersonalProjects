@@ -1,25 +1,21 @@
-@tool # allows for script to run in editor
-extends Node3D
+class_name WFC3D_MAIN
+extends Resource
 
-@onready var grid_map : GridMap = $GridMap
-@onready var mesh_lib : MeshLibrary = grid_map.mesh_library
-
-# Hidden from editor variables
 var wfc : WFC3D
+var dimensions : Vector3i
+var custom_seed : String
+var dict_prototype : Dictionary
+var grid_map : GridMap
 
-@export var dimensions : Vector3i :
-	set(values):
-		if Engine.is_editor_hint():
-			dimensions = values
+func _init():
+	print("INIT WFC3D_MAIN")
 
-@export var start : bool :
-	set(value):
-		if Engine.is_editor_hint(): # only run if in editor
-			generate()
-
-@export_multiline var custom_seed : String : 
-	set(_seed):
-		custom_seed = _seed
+func init_main(_seed: String, _dims : Vector3i, _grid_map : GridMap):
+	wfc = WFC3D.new()
+	custom_seed = _seed
+	dimensions = _dims
+	grid_map = _grid_map
+	dict_prototype = load_prototype_data()
 
 func load_prototype_data()-> Dictionary:
 	var file : FileAccess = FileAccess.open("res://Level_Resources/exported_mesh_data.json", FileAccess.READ)
@@ -32,18 +28,13 @@ func load_prototype_data()-> Dictionary:
 		return Dictionary()
 
 
-func generate():
-	wfc = WFC3D.new()
-	
+func generate():	
 	if wfc != null:
-		var dict_prototype : Dictionary = load_prototype_data()
 		if !dict_prototype.is_empty():
-			grid_map.clear()
 			wfc.init_wfc(dimensions, dict_prototype, custom_seed, grid_map)
 			
 			var fail_safe : int = 0
 			var limit: int = (dimensions.x * dimensions.y * dimensions.z) + 10
-			print("HIT")
 			while not wfc.is_collapsed():
 				wfc.iterate_grid()
 				

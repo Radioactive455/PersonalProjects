@@ -9,13 +9,17 @@ extends Node3D
 func set_start(_val:bool)->void:
 	if Engine.is_editor_hint(): # only run if in editor
 		generate()
+		# fill in the rest with WFC
+		var wfc : WFC3D_MAIN = WFC3D_MAIN.new()
+		wfc.init_main(custom_seed, border_size, grid_map)
+		wfc.generate()
 
 @export_range(0,1) var survival_chance : float = 0.25
-@export var border_size : int = 20 : set = set_border_size
-func set_border_size(val : int) -> void:
-	border_size = val
-	if Engine.is_editor_hint(): # only run if in editor
-		visualize_border()
+@export var border_size : Vector3i : 
+	set(value):
+		border_size = value
+		if Engine.is_editor_hint(): # only run if in editor
+			visualize_border()
 
 @export var room_number : int = 4
 @export var room_margin : int = 1
@@ -23,9 +27,9 @@ func set_border_size(val : int) -> void:
 @export var min_room_size : int = 2
 @export var max_room_size : int = 5
 
-const TILE_BORDER : int = 8
+const TILE_BORDER : int = 0 #8
 const TILE_CORNER : int = 1
-const TILE_ROOM : int = 0
+const TILE_ROOM : int = 8 #0
 const TILE_DOOR : int = 6
 const TILE_HALL: int = 13
 const TILE_T_INTER: int = 12
@@ -52,11 +56,11 @@ var room_positions : PackedVector3Array = []
 
 func visualize_border():
 	grid_map.clear()
-	for i in range(-1, border_size + 1):
-		grid_map.set_cell_item(Vector3i(i, 0, -1), TILE_BORDER)
-		grid_map.set_cell_item(Vector3i(i, 0, border_size), TILE_BORDER)
-		grid_map.set_cell_item(Vector3i(border_size, 0, i), TILE_BORDER)
-		grid_map.set_cell_item(Vector3i(-1, 0, i), TILE_BORDER)
+	for i in range(-1, border_size.x + 1):
+		if i < 0 or i > border_size.x - 1:
+			for j in range(-1, border_size.z + 1):
+				grid_map.set_cell_item(Vector3i(i, 0, j), TILE_BORDER)
+				grid_map.set_cell_item(Vector3i(j, 0, i), TILE_BORDER)
 
 
 func generate():
@@ -149,26 +153,33 @@ func create_hallways(hallway_graph : AStar2D):
 				var hallway : PackedVector3Array = [tile_from, tile_to]
 				hallways.append(hallway)
 				
-				# create temp doorways (will be edited later once hallways are calculated
+				# create temp doorways (will be corrected after hallways are created)
 				grid_map.set_cell_item(tile_from, TILE_DOOR)
 				grid_map.set_cell_item(tile_to, TILE_DOOR)
 				
 	
 	var aStar : AStarGrid2D = AStarGrid2D.new()
-	aStar.size = Vector2i.ONE * border_size
+	aStar.size = Vector2i.ONE * (border_size.x * border_size.z)
 	aStar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	aStar.default_estimate_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
 	aStar.update()
 	
-	for t in grid_map.get_used_cells_by_item(TILE_ROOM):
-		aStar.set_point_solid(Vector2i(t.x, t.z))
+	# set room tiles as solid so A-star won't go through them
+	for RM in room_tiles:
+		for t in RM:
+			if grid_map.get_cell_item(Vector3(t.x, 0, t.z)) != TILE_DOOR:
+				aStar.set_point_solid(Vector2i(t.x, t.z))
 	
 	for h in hallways:
 		var pos_from : Vector2i = Vector2i(h[0].x, h[0].z)
 		var pos_to : Vector2i = Vector2i(h[1].x, h[1].z)
 		var hall : PackedVector2Array = aStar.get_point_path(pos_from, pos_to)
+			
 		
 		for t in hall.size():
+			if t == 0 or t == hall.size() - 1:
+				continue
+			
 			var tile_type : int = TILE_HALL
 			var curr = hall[t]
 			var pos : Vector3i = Vector3i(curr.x, 0, curr.y)
@@ -215,24 +226,25 @@ func create_hallways(hallway_graph : AStar2D):
 					elif prev.y != curr.y :
 							grid_map.set_cell_item(pos, tile_type, ORIENTATION_LEFT)
 		
-		# correct the door's rotation so it meets the hall
+		# correct the door's
 		for t in grid_map.get_used_cells_by_item(TILE_DOOR):
-			var tile_type : int = TILE_DOOR
-			if grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_HALL or\
-			grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_CORNER:
-				grid_map.set_cell_item(t, tile_type, ORIENTATION_UP)
-				
-			elif grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_HALL or\
-			grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_CORNER:
-				grid_map.set_cell_item(t, tile_type, ORIENTATION_DOWN)
-				
-			elif grid_map.get_cell_item(t + Vector3i.BACK) == TILE_HALL or\
-			grid_map.get_cell_item(t + Vector3i.BACK) == TILE_CORNER:
-				grid_map.set_cell_item(t, tile_type, ORIENTATION_RIGHT)
-				
-			elif grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_HALL or\
-			grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_CORNER:
-				grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_LEFT)
+			grid_map.set_cell_item(t, -1) # empty the tile
+			#var tile_type : int = TILE_DOOR
+			#if grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_HALL or\
+			#grid_map.get_cell_item(t + Vector3i.RIGHT) == TILE_CORNER:
+				#grid_map.set_cell_item(t, tile_type, ORIENTATION_UP)
+				#
+			#elif grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_HALL or\
+			#grid_map.get_cell_item(t + Vector3i.LEFT) == TILE_CORNER:
+				#grid_map.set_cell_item(t, tile_type, ORIENTATION_DOWN)
+				#
+			#elif grid_map.get_cell_item(t + Vector3i.BACK) == TILE_HALL or\
+			#grid_map.get_cell_item(t + Vector3i.BACK) == TILE_CORNER:
+				#grid_map.set_cell_item(t, tile_type, ORIENTATION_RIGHT)
+				#
+			#elif grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_HALL or\
+			#grid_map.get_cell_item(t + Vector3i.FORWARD) == TILE_CORNER:
+				#grid_map.set_cell_item(t, TILE_DOOR, ORIENTATION_LEFT)
 
 
 func make_room(rec : int):
@@ -243,22 +255,28 @@ func make_room(rec : int):
 	var height : int = (randi() % (max_room_size - min_room_size)) + min_room_size
 	
 	var start_pos : Vector3i
-	start_pos.x = randi() % (border_size - width + 1)
-	start_pos.z = randi() % (border_size - height + 1)
+	start_pos.x = randi() % (border_size.x - width + 1)
+	start_pos.z = randi() % (border_size.z - height + 1)
 	
 	#check if it is possible to make a room here
 	for r in range(-room_margin, height + room_margin):
 		for c in range(-room_margin, width + room_margin):
 			var tPos :  Vector3i = start_pos + Vector3i(c, 0, r)
-			if grid_map.get_cell_item(tPos) == TILE_ROOM or grid_map.get_cell_item(tPos) == TILE_BORDER :
+			if grid_map.get_cell_item(tPos) == TILE_BORDER:
 				make_room(rec - 1)
 				return
+			else:
+				for rm in room_tiles:
+					if rm.has(tPos):
+						make_room(rec - 1)
+						return
 	
 	var room : PackedVector3Array = []
 	for r in height:
 		for c in width:
 			var tPos2 :  Vector3i = start_pos + Vector3i(c, 0, r)
-			grid_map.set_cell_item(tPos2, TILE_ROOM)
+			if (r > 0 and r < height - 1) and (c > 0 and c < width - 1):
+				grid_map.set_cell_item(tPos2, TILE_ROOM)
 			room.append(tPos2)
 	room_tiles.append(room)
 	
