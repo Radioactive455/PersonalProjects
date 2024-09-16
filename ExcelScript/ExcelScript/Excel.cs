@@ -3,6 +3,8 @@ using System.Reflection;
 using System.IO;
 using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices.Marshalling;
+using HtmlAgilityPack;
+using System.Net;
 
 namespace ExcelScript
 {
@@ -10,6 +12,10 @@ namespace ExcelScript
     {
         // Variables //////////////////////////////////////////////////////////////
         string mPath = "";
+
+        // Define the URL
+        string url = "";
+
         _Application mExcel;
         readonly _Excel._Workbook mWB;
         readonly _Excel._Worksheet mWS;
@@ -35,20 +41,50 @@ namespace ExcelScript
         // Functions //////////////////////////////////////////////////////////////
         static void Main()
         {
-            AccessExcel(@"FILEPATH_HERE");
+            AccessExcel("..\\TEST.xlsx");
 
             // Clean up
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
-        static void AccessExcel(string path)
+        static async void AccessExcel(string path)
         {
             ExcelHandler eh = new ExcelHandler(path, 1);
 
             try
             {
-                Console.WriteLine(eh.ReadCell(0, 1));
+                Console.WriteLine(eh.ReadCell(0, 0));
+
+                // Access the build server
+                try
+                {
+                    // load the website
+                    HtmlWeb web = new();
+                    HtmlDocument doc = web.Load(eh.url);
+
+                    // log into the website
+                    HtmlNode username = doc.GetElementbyId("j_username");
+                    if (username == null)
+                    {
+                        Console.WriteLine("Error: Username not found");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Username found");
+                        username.SetAttributeValue("value", "remanence");
+                    }
+                    
+                    //HtmlNode password = doc.GetElementbyId("j_password");
+                    //password.SetAttributeValue("value", "tosoftware");
+                    //HtmlNode submit = doc.GetElementbyId("yui-gen1-button");
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error Accessing Build Server: ");
+                    Console.WriteLine(e.Message);
+                }
             }
             catch (Exception theException)
             {
